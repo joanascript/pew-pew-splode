@@ -16,8 +16,13 @@ k.loadRoot("./"); // A good idea for Itch.io publishing later
 k.loadSound("pew", "sounds/pew.mp3");
 
 const player = add([
-  circle(25),
+  polygon([
+    vec2(30, 0), // Right point (nose pointing right)
+    vec2(-10, -17), // Top left point
+    vec2(-10, 17), // Bottom left point
+  ]),
   pos(center()),
+  rotate(0), // Add rotation component
   color(255, 0, 0),
   area(),
   "player",
@@ -75,6 +80,8 @@ onKeyDown((key) => {
     const angle = getAngleFromKey(direction);
     // Update player's current direction
     player.currentAngle = angle;
+    // Rotate the player to face the movement direction
+    player.angle = angle;
     // Convert angle to movement vector
     const moveX =
       Math.cos((angle * Math.PI) / 180) *
@@ -107,9 +114,9 @@ onKeyPress("space", () => {
     Math.sin((player.currentAngle * Math.PI) / 180) * BULLET_SPEED;
 
   const bullet = add([
-    circle(10),
+    circle(4),
     pos(player.pos.x, player.pos.y),
-    color(0, 183, 235),
+    color(0, 255, 255),
     area(),
     "bullet",
   ]);
