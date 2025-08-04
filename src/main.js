@@ -46,9 +46,57 @@ function createAsteroid() {
     points.push(vec2(x, y));
   }
 
+  // Choose random side to spawn from
+  const side = choose([
+    "top",
+    "bottom",
+    "left",
+    "right",
+    "top-right",
+    "top-left",
+    "bottom-right",
+    "bottom-left",
+  ]);
+  let startPos, endPos, speed;
+
+  switch (side) {
+    case "top":
+      startPos = vec2(rand(0, width()), -size - 50);
+      endPos = vec2(rand(0, width()), height() + size + 50);
+      break;
+    case "bottom":
+      startPos = vec2(rand(0, width()), height() + size + 50);
+      endPos = vec2(rand(0, width()), -size - 50);
+      break;
+    case "left":
+      startPos = vec2(-size - 50, rand(0, height()));
+      endPos = vec2(width() + size + 50, rand(0, height()));
+      break;
+    case "right":
+      startPos = vec2(width() + size + 50, rand(0, height()));
+      endPos = vec2(-size - 50, rand(0, height()));
+      break;
+    case "top-right":
+      startPos = vec2(width() + size + 50, -size - 50);
+      endPos = vec2(-size - 50, height() + size + 50);
+      break;
+    case "top-left":
+      startPos = vec2(-size - 50, -size - 50);
+      endPos = vec2(width() + size + 50, height() + size + 50);
+      break;
+    case "bottom-right":
+      startPos = vec2(width() + size + 50, height() + size + 50);
+      endPos = vec2(-size - 50, -size - 50);
+      break;
+    case "bottom-left":
+      startPos = vec2(-size - 50, height() + size + 50);
+      endPos = vec2(width() + size + 50, -size - 50);
+      break;
+  }
+
   const asteroid = add([
     polygon(points),
-    pos(rand(0, width()), rand(0, height())),
+    pos(startPos),
     color(100, 100, 100), // Gray color
     area(),
     rotate(rand(0, 360)), // Random rotation
@@ -56,17 +104,40 @@ function createAsteroid() {
     "asteroid",
   ]);
 
-  // Add slow rotation
-  asteroid.rotationSpeed = rand(-20, 20); // Random rotation speed
+  // Calculate movement direction and speed
+  const direction = endPos.sub(startPos).unit();
+  speed = rand(50, 150); // Random speed
+
+  // Add rotation and movement
+  asteroid.rotationSpeed = rand(-20, 20);
   asteroid.onUpdate(() => {
     asteroid.angle += asteroid.rotationSpeed * dt();
+    asteroid.move(direction.scale(speed));
+
+    // Remove asteroid when it's far off screen
+    if (
+      asteroid.pos.x < -size - 100 ||
+      asteroid.pos.x > width() + size + 100 ||
+      asteroid.pos.y < -size - 100 ||
+      asteroid.pos.y > height() + size + 100
+    ) {
+      destroy(asteroid);
+    }
   });
 
   return asteroid;
 }
 
-// Generate initial asteroids
-for (let i = 0; i < 12; i++) {
+// Continuously spawn asteroids
+onUpdate(() => {
+  if (Math.random() < 0.1) {
+    // Adjust this value to control spawn rate
+    createAsteroid();
+  }
+});
+
+// Generate a few initial asteroids
+for (let i = 0; i < 3; i++) {
   createAsteroid();
 }
 
