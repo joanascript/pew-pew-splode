@@ -31,6 +31,45 @@ const player = add([
 // Store player's current direction (starts facing right)
 player.currentAngle = 0;
 
+// Create random asteroids in the background
+function createAsteroid() {
+  const size = rand(15, 40); // Random size between 15-40
+  const sides = choose([6, 7, 8, 9]); // Random number of sides for irregular shape
+
+  // Create irregular asteroid shape
+  const points = [];
+  for (let i = 0; i < sides; i++) {
+    const angle = (i / sides) * 360;
+    const radius = size + rand(-5, 5); // Slight variation in radius
+    const x = Math.cos((angle * Math.PI) / 180) * radius;
+    const y = Math.sin((angle * Math.PI) / 180) * radius;
+    points.push(vec2(x, y));
+  }
+
+  const asteroid = add([
+    polygon(points),
+    pos(rand(0, width()), rand(0, height())),
+    color(100, 100, 100), // Gray color
+    area(),
+    rotate(rand(0, 360)), // Random rotation
+    z(-1), // Behind other objects
+    "asteroid",
+  ]);
+
+  // Add slow rotation
+  asteroid.rotationSpeed = rand(-20, 20); // Random rotation speed
+  asteroid.onUpdate(() => {
+    asteroid.angle += asteroid.rotationSpeed * dt();
+  });
+
+  return asteroid;
+}
+
+// Generate initial asteroids
+for (let i = 0; i < 12; i++) {
+  createAsteroid();
+}
+
 function getAngleFromKey(key) {
   // Return angle in degrees for each direction
   switch (key) {
